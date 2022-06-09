@@ -341,7 +341,7 @@ public final class MurmurHash3 implements Serializable {
     final long lengthBytes = mem.getCapacity();
     checkPositive(lengthBytes);
 
-    final Memory memLE = mem.getTypeByteOrder() == ByteOrder.LITTLE_ENDIAN
+    final Memory memLE = mem.getByteOrder() == ByteOrder.LITTLE_ENDIAN
         ? mem : mem.region(0, lengthBytes, ByteOrder.LITTLE_ENDIAN);
 
     final HashState hashState = new HashState(seed, seed);
