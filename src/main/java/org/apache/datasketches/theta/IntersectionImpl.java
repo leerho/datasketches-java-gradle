@@ -345,8 +345,8 @@ class IntersectionImpl extends Intersection {
   }
 
   @Override
-  public boolean isSameResource(final Memory that) {
-    return wmem_ != null ? wmem_.isSameResource(that) : false;
+  public long nativeOverlap(final Memory that) {
+    return wmem_ != null ? wmem_.nativeOverlap(that) : 0;
   }
 
   @Override

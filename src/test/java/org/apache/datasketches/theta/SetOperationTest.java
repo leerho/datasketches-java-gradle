@@ -320,16 +320,16 @@ public class SetOperationTest {
     final WritableMemory wmem = WritableMemory.writableWrap(new byte[k*16 + 32]);
     final Memory roCompactMem = Memory.wrap(new byte[8]);
     final Union union = Sketches.setOperationBuilder().setNominalEntries(k).buildUnion(wmem);
-    assertTrue(union.isSameResource(wmem));
-    assertFalse(union.isSameResource(roCompactMem));
+    assertTrue(union.nativeOverlap(wmem) != 0);
+    assertFalse(union.nativeOverlap(roCompactMem) != 0);
 
     final Intersection inter = Sketches.setOperationBuilder().buildIntersection(wmem);
-    assertTrue(inter.isSameResource(wmem));
-    assertFalse(inter.isSameResource(roCompactMem));
+    assertTrue(inter.nativeOverlap(wmem) != 0);
+    assertFalse(inter.nativeOverlap(roCompactMem) != 0);
 
     final AnotB aNotB = Sketches.setOperationBuilder().buildANotB();
 
-    assertFalse(aNotB.isSameResource(roCompactMem));
+    assertFalse(aNotB.nativeOverlap(roCompactMem) != 0);
   }
 
   @Test

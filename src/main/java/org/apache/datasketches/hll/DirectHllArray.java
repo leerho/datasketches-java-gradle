@@ -55,8 +55,8 @@ import org.apache.datasketches.memory.WritableMemory;
 abstract class DirectHllArray extends AbstractHllArray {
   WritableMemory wmem;
   Memory mem;
-  Object memObj;
-  long memAdd;
+  //Object memObj;
+  //long memAdd;
   final boolean compact;
 
   //Memory must be already initialized and may have data
@@ -64,8 +64,8 @@ abstract class DirectHllArray extends AbstractHllArray {
     super(lgConfigK, tgtHllType, CurMode.HLL);
     this.wmem = wmem;
     mem = wmem;
-    memObj = wmem.getArray();
-    memAdd = wmem.getCumulativeOffset(0L);
+    //memObj = wmem.getArray();
+    //memAdd = wmem.getCumulativeOffset(0L);
     compact = extractCompactFlag(mem);
     assert !compact;
     insertEmptyFlag(wmem, false);
@@ -76,8 +76,8 @@ abstract class DirectHllArray extends AbstractHllArray {
     super(lgConfigK, tgtHllType, CurMode.HLL);
     wmem = null;
     this.mem = mem;
-    memObj = ((WritableMemory) mem).getArray();
-    memAdd = mem.getCumulativeOffset(0L);
+    //memObj = ((WritableMemory) mem).getArray();
+    //memAdd = mem.getCumulativeOffset(0L);
     compact = extractCompactFlag(mem);
   }
 
@@ -85,8 +85,8 @@ abstract class DirectHllArray extends AbstractHllArray {
   final void updateMemory(final WritableMemory newWmem) {
     wmem = newWmem;
     mem = newWmem;
-    memObj = wmem.getArray();
-    memAdd = wmem.getCumulativeOffset(0L);
+    //memObj = wmem.getArray();
+    //memAdd = wmem.getCumulativeOffset(0L);
   }
 
   @Override
@@ -181,11 +181,6 @@ abstract class DirectHllArray extends AbstractHllArray {
   @Override
   boolean isOutOfOrder() {
     return extractOooFlag(mem);
-  }
-
-  @Override
-  boolean isSameResource(final Memory mem) {
-    return this.mem.isSameResource(mem);
   }
 
   @Override

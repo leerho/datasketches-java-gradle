@@ -151,8 +151,8 @@ final class AnotBimpl extends AnotB {
   }
 
   @Override
-  public boolean isSameResource(final Memory that) {
-    return false;
+  public long nativeOverlap(final Memory that) {
+    return 0;
   }
 
   //restricted

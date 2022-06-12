@@ -180,24 +180,15 @@ abstract class BaseHllSketch {
   abstract boolean isOutOfOrder();
 
   /**
-   * Returns true if the given Memory refers to the same underlying resource as this sketch.
-   * The capacities must be the same.  If <i>this</i> is a region,
-   * the region offset must also be the same.
-   *
-   * <p>This is only relevant for HLL_4 sketches that have been configured for off-heap
-   * using WritableMemory or Memory.  For on-heap sketches or unions this will return false.
-   *
-   * <p>It is rare, but possible, the the off-heap memory that has been allocated to an HLL_4
-   * sketch may not be large enough. If this should happen, the sketch makes a request for more
-   * memory from the owner of the resource and then moves itself to this new location. This all
-   * happens transparently to the user. This method provides a means for the user to
-   * inquire of the sketch if it has, in fact, moved itself.
-   *
-   * @param mem the given Memory
-   * @return true if the given Memory refers to the same underlying resource as this sketch or
-   * union.
+   * Returns a positive number if <i>this</i> overlaps <i>that</i> and <i>this</i> base address is &le; <i>that</i>
+   * base address.
+   * Returns a negative number if <i>this</i> overlaps <i>that</i> and <i>this</i> base address is &gt; <i>that</i>
+   * base address.
+   * Returns a zero if there is no overlap or if one or both objects are null, not active or on heap.
+   * @param that the other BaseState object
+   * @return a long value representing the ordering and size of overlap between <i>this</i> and <i>that</i>.
    */
-  public abstract boolean isSameResource(Memory mem);
+  public abstract long nativeOverlap(final Memory that);
 
   /**
    * Resets to empty, but does not change the configured values of lgConfigK and tgtHllType.

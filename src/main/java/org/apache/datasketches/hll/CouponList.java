@@ -184,11 +184,6 @@ class CouponList extends AbstractCoupons {
   }
 
   @Override
-  boolean isSameResource(final Memory mem) {
-    return false;
-  }
-
-  @Override
   PairIterator iterator() {
     return new IntArrayPairIterator(couponIntArr, lgConfigK);
   }

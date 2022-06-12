@@ -28,12 +28,17 @@ import static org.testng.Assert.assertTrue;
 
 import org.apache.datasketches.SketchesArgumentException;
 import org.apache.datasketches.Util;
+import org.apache.datasketches.memory.DefaultMemoryRequestServer;
 import org.apache.datasketches.memory.Memory;
-import org.apache.datasketches.memory.WritableHandle;
+import org.apache.datasketches.memory.MemoryRequestServer;
 import org.apache.datasketches.memory.WritableMemory;
 import org.testng.annotations.Test;
 
+import jdk.incubator.foreign.ResourceScope;
+
 public class UnionImplTest {
+  private static  MemoryRequestServer memReqSvr = new DefaultMemoryRequestServer();
+
 
   @Test
   public void checkGetCurrentAndMaxBytes() {
@@ -176,21 +181,20 @@ public class UnionImplTest {
     final int k = 1 << 12;
     final int u = 2 * k;
     final int bytes = Sketches.getMaxUpdateSketchBytes(k);
-    try (WritableHandle wh = WritableMemory.allocateDirect(bytes/2);
-        WritableHandle wh2 = WritableMemory.allocateDirect(bytes/2) ) {
-      final WritableMemory wmem = wh.getWritable();
+    try (ResourceScope scope = ResourceScope.newConfinedScope()) {
+      WritableMemory wmem = WritableMemory.allocateDirect(bytes/2, scope, memReqSvr);
+      WritableMemory wmem2 = WritableMemory.allocateDirect(bytes/2, scope, memReqSvr);
       final UpdateSketch sketch = Sketches.updateSketchBuilder().setNominalEntries(k).build(wmem);
-      assertTrue(sketch.isSameResource(wmem));
+      assertTrue(sketch.nativeOverlap(wmem) != 0);
 
-      final WritableMemory wmem2 = wh2.getWritable();
       final Union union = SetOperation.builder().buildUnion(wmem2);
-      assertTrue(union.isSameResource(wmem2));
+      assertTrue(union.nativeOverlap(wmem2) != 0);
 
       for (int i = 0; i < u; i++) { union.update(i); }
-      assertFalse(union.isSameResource(wmem));
+      assertFalse(union.nativeOverlap(wmem) != 0);
 
       final Union union2 = SetOperation.builder().buildUnion(); //on-heap union
-      assertFalse(union2.isSameResource(wmem2));  //obviously not
+      assertFalse(union2.nativeOverlap(wmem2) != 0);  //obviously not
     } catch (final Exception e) {
       throw new RuntimeException(e);
     }
@@ -214,8 +218,9 @@ public class UnionImplTest {
     final double est1 = sk.getEstimate();
 
     final int bytes = Sketches.getMaxCompactSketchBytes(sk.getRetainedEntries(true));
-    try (WritableHandle h = WritableMemory.allocateDirect(bytes)) {
-      final WritableMemory wmem = h.getWritable();
+
+    try (ResourceScope scope = ResourceScope.newConfinedScope()) {
+      WritableMemory wmem = WritableMemory.allocateDirect(bytes, scope, memReqSvr);
       final CompactSketch csk = sk.compact(true, wmem); //ordered, direct
       final Union union = Sketches.setOperationBuilder().buildUnion();
       union.union(csk);

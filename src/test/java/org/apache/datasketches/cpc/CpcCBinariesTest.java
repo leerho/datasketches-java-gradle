@@ -19,15 +19,17 @@
 
 package org.apache.datasketches.cpc;
 
+import static org.apache.datasketches.memory.Memory.map;
 import static org.apache.datasketches.Util.getResourceFile;
 import static org.testng.Assert.assertEquals;
 
 import java.io.File;
 import java.io.PrintStream;
 
-import org.apache.datasketches.memory.MapHandle;
 import org.apache.datasketches.memory.Memory;
 import org.testng.annotations.Test;
+
+import jdk.incubator.foreign.ResourceScope;
 
 /**
  * Checks sketch images obtained from C++.
@@ -41,10 +43,10 @@ public class CpcCBinariesTest {
   public void checkEmptyBin() {
     final String fileName = "cpc-empty.sk";
     final File file = getResourceFile(fileName);
-    try (MapHandle mh = Memory.map(file)) {
-      final Memory wmem = mh.get();
-      println(PreambleUtil.toString(wmem, true));
-      final CpcSketch sk = CpcSketch.heapify(wmem);
+    try (ResourceScope scope = ResourceScope.newConfinedScope()) {
+      Memory mem = map(file, scope);
+      println(PreambleUtil.toString(mem, true));
+      final CpcSketch sk = CpcSketch.heapify(mem);
       assertEquals(sk.getFlavor(), Flavor.EMPTY);
     } catch (final Exception e) {
       e.printStackTrace();
@@ -55,8 +57,8 @@ public class CpcCBinariesTest {
   public void checkSparseBin() {
     final String fileName = "cpc-sparse.sk";
     final File file = getResourceFile(fileName);
-    try (MapHandle mh = Memory.map(file)) {
-      final Memory mem = mh.get();
+    try (ResourceScope scope = ResourceScope.newConfinedScope()) {
+      final Memory mem = Memory.map(file, scope);
       println("CPP GENERATED SKETCH FROM BINARY FILE LgK=11, U0 to U99");
       println("PreambleUtil.toString(mem, true)" + LS);
       println(PreambleUtil.toString(mem, true));
@@ -81,8 +83,8 @@ public class CpcCBinariesTest {
   public void checkHybridBin() {
     final String fileName = "cpc-hybrid.sk";
     final File file = getResourceFile(fileName);
-    try (MapHandle mh = Memory.map(file)) {
-      final Memory mem = mh.get();
+    try (ResourceScope scope = ResourceScope.newConfinedScope()) {
+      final Memory mem =  Memory.map(file, scope);
       println("CPP GENERATED SKETCH FROM BINARY FILE LgK=11, U0 to U199");
       println("PreambleUtil.toString(mem, true)" + LS);
       println(PreambleUtil.toString(mem, true));
@@ -107,8 +109,8 @@ public class CpcCBinariesTest {
   public void checkPinnedBin() {
     final String fileName = "cpc-pinned.sk";
     final File file = getResourceFile(fileName);
-    try (MapHandle mh = Memory.map(file)) {
-      final Memory mem = mh.get();
+    try (ResourceScope scope = ResourceScope.newConfinedScope()) {
+      final Memory mem = Memory.map(file, scope);
       println("CPP GENERATED SKETCH FROM BINARY FILE LgK=11, U0 to U1999");
       println("PreambleUtil.toString(mem, true)" + LS);
       println(PreambleUtil.toString(mem, true));
@@ -133,8 +135,8 @@ public class CpcCBinariesTest {
   public void checkSlidingBin() {
     final String fileName = "cpc-sliding.sk";
     final File file = getResourceFile(fileName);
-    try (MapHandle mh = Memory.map(file)) {
-      final Memory mem = mh.get();
+    try (ResourceScope scope = ResourceScope.newConfinedScope()) {
+      final Memory mem = Memory.map(file, scope);
       println("CPP GENERATED SKETCH FROM BINARY FILE LgK=11, U0 to U19999");
       println("PreambleUtil.toString(mem, true)" + LS);
       println(PreambleUtil.toString(mem, true));
@@ -161,8 +163,8 @@ public class CpcCBinariesTest {
   public void checkEmptyImages() {
     final String fileName = "cpc-empty.sk";
     final File file = getResourceFile(fileName);
-    try (MapHandle mh = Memory.map(file)) {
-      final Memory mem = mh.get();
+    try (ResourceScope scope = ResourceScope.newConfinedScope()) {
+      final Memory mem = Memory.map(file, scope);
       final int cap = (int) mem.getCapacity();
       final byte[] memByteArr = new byte[cap];
       mem.getByteArray(0, memByteArr, 0, cap);
@@ -181,8 +183,8 @@ public class CpcCBinariesTest {
   public void checkSparseImages() {
     final String fileName = "cpc-sparse.sk";
     final File file = getResourceFile(fileName);
-    try (MapHandle mh = Memory.map(file)) {
-      final Memory mem = mh.get();
+    try (ResourceScope scope = ResourceScope.newConfinedScope()) {
+      final Memory mem = Memory.map(file, scope);
       final int cap = (int) mem.getCapacity();
       final byte[] memByteArr = new byte[cap];
       mem.getByteArray(0, memByteArr, 0, cap);
@@ -202,8 +204,8 @@ public class CpcCBinariesTest {
   public void checkHybridImages() {
     final String fileName = "cpc-hybrid.sk";
     final File file = getResourceFile(fileName);
-    try (MapHandle mh = Memory.map(file)) {
-      final Memory mem = mh.get();
+    try (ResourceScope scope = ResourceScope.newConfinedScope()) {
+      final Memory mem = Memory.map(file, scope);
       final int cap = (int) mem.getCapacity();
       final byte[] memByteArr = new byte[cap];
       mem.getByteArray(0, memByteArr, 0, cap);
@@ -223,8 +225,8 @@ public class CpcCBinariesTest {
   public void checkPinnedImages() {
     final String fileName = "cpc-pinned.sk";
     final File file = getResourceFile(fileName);
-    try (MapHandle mh = Memory.map(file)) {
-      final Memory mem = mh.get();
+    try (ResourceScope scope = ResourceScope.newConfinedScope()) {
+      final Memory mem = Memory.map(file, scope);
       final int cap = (int) mem.getCapacity();
       final byte[] cppMemByteArr = new byte[cap];
       mem.getByteArray(0, cppMemByteArr, 0, cap);
@@ -244,8 +246,8 @@ public class CpcCBinariesTest {
   public void checkSlidingImages() {
     final String fileName = "cpc-sliding.sk";
     final File file = getResourceFile(fileName);
-    try (MapHandle mh = Memory.map(file)) {
-      final Memory mem = mh.get();
+    try (ResourceScope scope = ResourceScope.newConfinedScope()) {
+      final Memory mem = Memory.map(file, scope);
       final int cap = (int) mem.getCapacity();
       final byte[] memByteArr = new byte[cap];
       mem.getByteArray(0, memByteArr, 0, cap);

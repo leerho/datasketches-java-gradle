@@ -325,17 +325,17 @@ public class SketchTest {
     UpdateSketch sketch = Sketches.updateSketchBuilder().setNominalEntries(k).build(mem);
     sketch.update(1);
     sketch.update(2);
-    assertTrue(sketch.isSameResource(mem));
+    assertTrue(sketch.nativeOverlap(mem) != 0);
     DirectCompactSketch dcos = (DirectCompactSketch) sketch.compact(true, cmem);
-    assertTrue(dcos.isSameResource(cmem));
+    assertTrue(dcos.nativeOverlap(cmem) != 0);
     assertTrue(dcos.isOrdered());
     //never create 2 sketches with the same memory, so don't do as I do :)
     DirectCompactSketch dcs = (DirectCompactSketch) sketch.compact(false, cmem);
-    assertTrue(dcs.isSameResource(cmem));
+    assertTrue(dcs.nativeOverlap(cmem) != 0);
     assertFalse(dcs.isOrdered());
 
     Sketch sk = Sketches.updateSketchBuilder().setNominalEntries(k).build();
-    assertFalse(sk.isSameResource(mem));
+    assertFalse(sk.nativeOverlap(mem) != 0);
   }
 
   @Test

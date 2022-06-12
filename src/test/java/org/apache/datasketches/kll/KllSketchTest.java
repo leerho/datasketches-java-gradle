@@ -133,11 +133,11 @@ public class KllSketchTest {
     WritableMemory reg1 = wmem.writableRegion(0, 64);
     WritableMemory reg2 = wmem.writableRegion(64, 64);
     assertFalse(reg1 == reg2);
-    assertFalse(reg1.isSameResource(reg2));
+    assertTrue(reg1.nativeOverlap(reg2) == 0); //on heap
 
     WritableMemory reg3 = wmem.writableRegion(0, 64);
     assertFalse(reg1 == reg3);
-    assertTrue(reg1.isSameResource(reg3));
+    assertTrue(reg1.nativeOverlap(reg3) == 0);  //on heap
 
     byte[] byteArr1 = KllFloatsSketch.newHeapInstance(20).toByteArray();
     reg1.putByteArray(0, byteArr1, 0, byteArr1.length);
@@ -145,13 +145,13 @@ public class KllSketchTest {
 
     byte[] byteArr2 = KllFloatsSketch.newHeapInstance(20).toByteArray();
     reg2.putByteArray(0, byteArr2, 0, byteArr2.length);
-    if (!sk1.isSameResource(reg2)) {
+    if (sk1.nativeOverlap(reg2) == 0) { //on heap
       KllFloatsSketch sk2 = KllFloatsSketch.wrap(reg2);
     }
 
     byte[] byteArr3 = KllFloatsSketch.newHeapInstance(20).toByteArray();
     reg3.putByteArray(0, byteArr3, 0, byteArr3.length);
-    if (!sk1.isSameResource(reg3)) {
+    if (sk1.nativeOverlap(reg3) != 0) { //on heap, so false
       KllFloatsSketch sk3 = KllFloatsSketch.wrap(reg3);
       fail();
     }

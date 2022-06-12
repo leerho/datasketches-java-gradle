@@ -185,11 +185,6 @@ abstract class HllArray extends AbstractHllArray {
   }
 
   @Override
-  boolean isSameResource(final Memory mem) {
-    return false;
-  }
-
-  @Override
   boolean isRebuildCurMinNumKxQFlag() {
     return rebuildCurMinNumKxQ;
   }

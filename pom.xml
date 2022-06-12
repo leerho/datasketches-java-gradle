@@ -131,12 +131,12 @@ under the License.
   </properties>
 
   <dependencies>
-    <!-- UNIQUE FOR THIS JAVA COMPONENT -->
+    <!-- UNIQUE FOR THIS JAVA COMPONENT 
     <dependency>
       <groupId>org.apache.datasketches</groupId>
       <artifactId>datasketches-memory</artifactId>
       <version>${datasketches-memory.version}</version>
-    </dependency>
+    </dependency> -->
     <!-- END: UNIQUE FOR THIS JAVA COMPONENT -->
     <!-- Test Scope -->
     <dependency>

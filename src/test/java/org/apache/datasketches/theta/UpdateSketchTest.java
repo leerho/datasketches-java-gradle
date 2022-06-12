@@ -199,7 +199,6 @@ public class UpdateSketchTest {
     }
   }
 
-
   @SuppressWarnings("unused")
   @Test
   public void checkCompactOpsMemoryToCompact() {
@@ -218,8 +217,11 @@ public class UpdateSketchTest {
     csk1 = sk.compact(true, cskwmem1);
     csk2 = CompactOperations.memoryToCompact(skwmem, true, cskwmem2);
     csk3 = CompactOperations.memoryToCompact(cskwmem1, true, cskwmem3);
-    assertTrue(cskwmem1.equals(cskwmem2));
-    assertTrue(cskwmem1.equals(cskwmem3));
+    long mismatch = cskwmem1.mismatch(cskwmem2);
+    println(mismatch);
+    boolean eq = cskwmem1.equalTo(cskwmem2);
+    assertTrue(cskwmem1.equalTo(cskwmem2));
+    assertTrue(cskwmem1.equalTo(cskwmem3));
   }
 
   @Test
@@ -228,9 +230,9 @@ public class UpdateSketchTest {
   }
 
   /**
-   * @param s value to print
+   * @param o value to print
    */
-  static void println(String s) {
-    //System.out.println(s); //disable here
+  static void println(Object o) {
+    //System.out.println(o.toString()); //disable here
   }
 }

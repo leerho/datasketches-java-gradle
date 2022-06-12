@@ -102,10 +102,10 @@ public class HllArrayTest {
     assert sk1.hllSketchImpl instanceof AbstractHllArray;
     if (sk1.hllSketchImpl instanceof HllArray) {
       assertFalse(sk1.hllSketchImpl.isMemory());
-      assertFalse(sk1.isSameResource(wmem));
+      assertFalse(sk1.nativeOverlap(wmem) != 0);
     } else { //DirectHllArray
       assertTrue(sk1.hllSketchImpl.isMemory());
-      assertTrue(sk1.isSameResource(wmem));
+      assertTrue(sk1.nativeOverlap(wmem) != 0);
     }
 
     //sk1.update(u);

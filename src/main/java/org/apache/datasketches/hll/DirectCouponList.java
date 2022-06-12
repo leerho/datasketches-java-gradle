@@ -198,11 +198,6 @@ class DirectCouponList extends AbstractCoupons {
   }
 
   @Override
-  boolean isSameResource(final Memory mem) {
-    return this.mem.isSameResource(mem);
-  }
-
-  @Override
   PairIterator iterator() {
     final long dataStart = getMemDataStart();
     final int lenInts = (compact) ? getCouponCount() : 1 << getLgCouponArrInts();

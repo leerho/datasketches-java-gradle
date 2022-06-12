@@ -27,8 +27,9 @@ import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.Test;
 
+import jdk.incubator.foreign.ResourceScope;
+
 import org.apache.datasketches.memory.Memory;
-import org.apache.datasketches.memory.WritableHandle;
 import org.apache.datasketches.memory.WritableMemory;
 
 /**
@@ -70,8 +71,8 @@ public class DirectCouponListTest {
     //println("DIRECT");
     byte[] barr1;
     WritableMemory wmem = null;
-    try (WritableHandle hand = WritableMemory.allocateDirect(bytes)) {
-      wmem = hand.getWritable();
+    try (ResourceScope scope = ResourceScope.newConfinedScope()) {
+     wmem = WritableMemory.allocateDirect(bytes, scope, null);
       //byte[] byteArr = new byte[bytes];
       //WritableMemory wmem = WritableMemory.wrap(byteArr);
       hllSketch = new HllSketch(lgConfigK, tgtHllType, wmem);
@@ -85,7 +86,7 @@ public class DirectCouponListTest {
       assertEquals(hllSketch.getCurMode(), tgtMode);
       assertTrue(hllSketch.isMemory());
       assertTrue(hllSketch.isOffHeap());
-      assertTrue(hllSketch.isSameResource(wmem));
+      assertTrue(hllSketch.nativeOverlap(wmem) != 0);
 
       //convert direct sketch to byte[]
       barr1 = (compact) ? hllSketch.toCompactByteArray() : hllSketch.toUpdatableByteArray();
@@ -106,7 +107,7 @@ public class DirectCouponListTest {
     assertEquals(hllSketch2.getCurMode(), tgtMode);
     assertFalse(hllSketch2.isMemory());
     assertFalse(hllSketch2.isOffHeap());
-    assertFalse(hllSketch2.isSameResource(wmem));
+    assertFalse(hllSketch2.nativeOverlap(wmem) != 0); //out of scope
     byte[] barr2 = (compact) ? hllSketch2.toCompactByteArray() : hllSketch2.toUpdatableByteArray();
     assertEquals(barr1.length, barr2.length, barr1.length + ", " + barr2.length);
     //printDiffs(barr1, barr2);

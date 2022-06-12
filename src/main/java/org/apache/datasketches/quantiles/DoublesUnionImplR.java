@@ -154,8 +154,8 @@ class DoublesUnionImplR extends DoublesUnion {
   }
 
   @Override
-  public boolean isSameResource(final Memory that) {
-    return (gadget_ == null) ? false : gadget_.isSameResource(that);
+  public long nativeOverlap(final Memory that) {
+    return (gadget_ == null) ? 0 : gadget_.nativeOverlap(that);
   }
 
 }

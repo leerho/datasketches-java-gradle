@@ -181,8 +181,8 @@ final class DirectCompactDoublesSketch extends CompactDoublesSketch {
   }
 
   @Override
-  public boolean isSameResource(final Memory that) {
-    return mem_.isSameResource(that);
+  public long nativeOverlap(final Memory that) {
+    return mem_.nativeOverlap(that);
   }
 
   //Restricted overrides

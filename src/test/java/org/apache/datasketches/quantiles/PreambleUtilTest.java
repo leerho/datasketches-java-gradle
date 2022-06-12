@@ -39,17 +39,21 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import jdk.incubator.foreign.ResourceScope;
+
+import org.apache.datasketches.memory.DefaultMemoryRequestServer;
 import org.apache.datasketches.memory.Memory;
-import org.apache.datasketches.memory.WritableHandle;
+import org.apache.datasketches.memory.MemoryRequestServer;
 import org.apache.datasketches.memory.WritableMemory;
 
 public class PreambleUtilTest {
+  private MemoryRequestServer memReqSvr = new DefaultMemoryRequestServer();
 
   @Test
   public void checkInsertsAndExtracts() {
     final int bytes = 32;
-    try (WritableHandle offHeapMemHandler = WritableMemory.allocateDirect(bytes)) {
-      final WritableMemory offHeapMem = offHeapMemHandler.getWritable();
+    try (ResourceScope scope = ResourceScope.newConfinedScope()) {
+      WritableMemory offHeapMem = WritableMemory.allocateDirect(bytes, scope, memReqSvr);
       final WritableMemory onHeapMem = WritableMemory.writableWrap(new byte[bytes]);
 
       onHeapMem.clear();

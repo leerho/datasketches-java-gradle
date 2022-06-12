@@ -27,13 +27,17 @@ import java.util.HashSet;
 
 import org.testng.annotations.Test;
 
-import org.apache.datasketches.memory.WritableHandle;
+import jdk.incubator.foreign.ResourceScope;
+
+import org.apache.datasketches.memory.DefaultMemoryRequestServer;
+import org.apache.datasketches.memory.MemoryRequestServer;
 import org.apache.datasketches.memory.WritableMemory;
 
 /**
  * @author Lee Rhodes
  */
 public class DebugUnionTest {
+  private MemoryRequestServer memReqSvr = new DefaultMemoryRequestServer();
 
   @Test
   public void test() {
@@ -61,8 +65,8 @@ public class DebugUnionTest {
     DoublesSketch.setRandom(1); //make deterministic for test
     DoublesUnion dUnion;
     DoublesSketch dSketch;
-    try ( WritableHandle wdh = WritableMemory.allocateDirect(10_000_000) ) {
-      WritableMemory wmem = wdh.getWritable();
+    try (ResourceScope scope = ResourceScope.newConfinedScope()) {
+        WritableMemory wmem = WritableMemory.allocateDirect(10_000_000, scope, memReqSvr);
       dUnion = DoublesUnion.builder().setMaxK(8).build(wmem);
       for (int s = 0; s < numSketches; s++) { dUnion.update(sketchArr[s]); }
       dSketch = dUnion.getResult(); //result is on heap

@@ -81,7 +81,7 @@ public class HeapIntersectionTest {
     rsk1 = inter.getResult(ordered, mem);
     assertEquals(rsk1.getEstimate(), 0.0);
 
-    assertFalse(inter.isSameResource(mem));
+    assertFalse(inter.nativeOverlap(mem) != 0);
   }
 
   @Test

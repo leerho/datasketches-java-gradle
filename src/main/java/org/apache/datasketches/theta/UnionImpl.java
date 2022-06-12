@@ -262,9 +262,9 @@ final class UnionImpl extends Union {
   }
 
   @Override
-  public boolean isSameResource(final Memory that) {
+  public long nativeOverlap(final Memory that) {
     return gadget_ instanceof DirectQuickSelectSketchR
-        ? gadget_.getMemory().isSameResource(that) : false;
+        ? gadget_.getMemory().nativeOverlap(that) : 0;
   }
 
   @Override

@@ -390,8 +390,9 @@ public class HllSketch extends BaseHllSketch {
   }
 
   @Override
-  public boolean isSameResource(final Memory mem) {
-    return hllSketchImpl.isSameResource(mem);
+  public long nativeOverlap(final Memory that) {
+    WritableMemory wmem = getWritableMemory();
+    return (wmem != null) ? wmem.nativeOverlap(that) : 0;
   }
 
   void mergeTo(final HllSketch that) {

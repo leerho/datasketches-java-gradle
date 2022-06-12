@@ -26,14 +26,14 @@ import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
-import java.nio.ByteOrder;
 import java.util.HashMap;
 
 import org.apache.datasketches.memory.DefaultMemoryRequestServer;
 import org.testng.annotations.Test;
 
+import jdk.incubator.foreign.ResourceScope;
+
 import org.apache.datasketches.memory.Memory;
-import org.apache.datasketches.memory.WritableHandle;
 import org.apache.datasketches.memory.WritableMemory;
 import org.apache.datasketches.SketchesStateException;
 
@@ -50,9 +50,8 @@ public class DirectAuxHashMapTest {
     int n = 8; //put lgConfigK == 4 into HLL mode
     int bytes = HllSketch.getMaxUpdatableSerializationBytes(lgConfigK, tgtHllType);
     HllSketch hllSketch;
-    try (WritableHandle handle = WritableMemory.allocateDirect(bytes,
-            ByteOrder.nativeOrder(), new DefaultMemoryRequestServer())) {
-      WritableMemory wmem = handle.getWritable();
+    try (ResourceScope scope = ResourceScope.newConfinedScope()) {
+      WritableMemory wmem = WritableMemory.allocateDirect(bytes, scope, new DefaultMemoryRequestServer());
       hllSketch = new HllSketch(lgConfigK, tgtHllType, wmem);
       for (int i = 0; i < n; i++) {
         hllSketch.update(i);
@@ -65,7 +64,7 @@ public class DirectAuxHashMapTest {
       assertEquals(dha.getAuxHashMap().getLgAuxArrInts(), 2);
       assertTrue(hllSketch.isMemory());
       assertTrue(hllSketch.isOffHeap());
-      assertTrue(hllSketch.isSameResource(wmem));
+      assertTrue(hllSketch.nativeOverlap(wmem) != 0);
 
       //Check heapify
       byte[] byteArray = hllSketch.toCompactByteArray();
@@ -91,7 +90,7 @@ public class DirectAuxHashMapTest {
       assertEquals(dha.getAuxHashMap().getAuxCount(), 4);
       assertTrue(hllSketch.isMemory());
       assertFalse(hllSketch.isOffHeap());
-      assertFalse(hllSketch.isSameResource(wmem));
+      //assertFalse(hllSketch.nativeOverlap(wmem) == 0);
     } catch (final Exception e) {
       throw new RuntimeException(e);
     }

@@ -267,7 +267,7 @@ public class UnionTest {
     byte[] byteArr = srcU.toCompactByteArray();
     Memory mem = Memory.wrap(byteArr);
     Union dstU = Union.heapify(mem);
-    assertFalse(dstU.isSameResource(mem));
+    assertFalse(dstU.nativeOverlap(mem) != 0);
 
     assertEquals(dstU.getEstimate(), srcU.getEstimate(), 0.0);
   }

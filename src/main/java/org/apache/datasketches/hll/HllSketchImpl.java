@@ -100,7 +100,10 @@ abstract class HllSketchImpl {
 
   abstract boolean isRebuildCurMinNumKxQFlag();
 
-  abstract boolean isSameResource(Memory mem);
+  long nativeOverlap(final Memory that) {
+    WritableMemory wmem = getWritableMemory();
+    return (wmem != null) ? wmem.nativeOverlap(that) : 0;
+  }
 
   abstract PairIterator iterator();
 

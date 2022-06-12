@@ -27,15 +27,19 @@ import static org.testng.Assert.assertTrue;
 
 import org.apache.datasketches.Family;
 import org.apache.datasketches.SketchesArgumentException;
+import org.apache.datasketches.memory.DefaultMemoryRequestServer;
 import org.apache.datasketches.memory.Memory;
-import org.apache.datasketches.memory.WritableHandle;
+import org.apache.datasketches.memory.MemoryRequestServer;
 import org.apache.datasketches.memory.WritableMemory;
 import org.testng.annotations.Test;
+
+import jdk.incubator.foreign.ResourceScope;
 
 /**
  * @author Lee Rhodes
  */
 public class CompactSketchTest {
+  private MemoryRequestServer memReqSvr = new DefaultMemoryRequestServer();
 
   @Test
   public void checkHeapifyWrap() {
@@ -77,8 +81,8 @@ public class CompactSketchTest {
     //Prepare Memory for direct
     int bytes = usk.getCompactBytes(); //for Compact
 
-    try (WritableHandle wdh = WritableMemory.allocateDirect(bytes)) {
-      WritableMemory directMem = wdh.getWritable();
+    try (ResourceScope scope = ResourceScope.newConfinedScope()) {
+      WritableMemory directMem = WritableMemory.allocateDirect(bytes, scope, memReqSvr);
 
       /**Via CompactSketch.compact**/
       refSk = usk.compact(ordered, directMem);

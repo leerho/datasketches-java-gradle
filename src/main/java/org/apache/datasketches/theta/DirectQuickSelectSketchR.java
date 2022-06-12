@@ -157,8 +157,8 @@ class DirectQuickSelectSketchR extends UpdateSketch {
   }
 
   @Override
-  public boolean isSameResource(final Memory that) {
-    return wmem_.isSameResource(that);
+  public long nativeOverlap(final Memory that) {
+    return wmem_.nativeOverlap(that);
   }
 
   @Override

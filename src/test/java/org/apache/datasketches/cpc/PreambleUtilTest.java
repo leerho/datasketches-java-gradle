@@ -98,7 +98,10 @@ public class PreambleUtilTest {
 
     format = Format.EMPTY_MERGED;
     putEmptyMerged(wmem, lgK, seedHash);
-    println(CpcSketch.toString((byte[])wmem.getArray(), true));
+    int cap = (int)wmem.getCapacity();
+    byte[] byteArr = new byte[cap];
+    wmem.getByteArray(0, byteArr, 0, cap);
+    println(CpcSketch.toString((byteArr), true));
     checkFirst8(wmem, format, lgK, (byte) 0);
     assertFalse(hasHip(wmem));
 

@@ -248,8 +248,9 @@ public class Union extends BaseHllSketch {
   }
 
   @Override
-  public boolean isSameResource(final Memory mem) {
-    return gadget.isSameResource(mem);
+  public long nativeOverlap(final Memory that) {
+    WritableMemory wmem = gadget.hllSketchImpl.getWritableMemory();
+    return (wmem != null) ? wmem.nativeOverlap(that) : 0;
   }
 
   boolean isRebuildCurMinNumKxQFlag() {

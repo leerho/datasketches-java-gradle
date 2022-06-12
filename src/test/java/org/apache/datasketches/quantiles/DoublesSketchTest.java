@@ -27,12 +27,15 @@ import static org.testng.Assert.assertTrue;
 import java.nio.ByteOrder;
 
 import org.apache.datasketches.memory.DefaultMemoryRequestServer;
-import org.apache.datasketches.memory.WritableHandle;
+import org.apache.datasketches.memory.MemoryRequestServer;
 import org.apache.datasketches.memory.WritableMemory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import jdk.incubator.foreign.ResourceScope;
+
 public class DoublesSketchTest {
+  private MemoryRequestServer memReqSvr = new DefaultMemoryRequestServer();
 
   @Test
   public void heapToDirect() {
@@ -116,12 +119,12 @@ public class DoublesSketchTest {
     WritableMemory cmem = WritableMemory.writableWrap(new byte[8]);
     DirectUpdateDoublesSketch duds =
             (DirectUpdateDoublesSketch) DoublesSketch.builder().setK(k).build(mem);
-    assertTrue(duds.isSameResource(mem));
+    assertTrue(duds.nativeOverlap(mem) != 0);
     DirectCompactDoublesSketch dcds = (DirectCompactDoublesSketch) duds.compact(cmem);
-    assertTrue(dcds.isSameResource(cmem));
+    assertTrue(dcds.nativeOverlap(cmem) != 0);
 
     UpdateDoublesSketch uds = DoublesSketch.builder().setK(k).build();
-    assertFalse(uds.isSameResource(mem));
+    assertFalse(uds.nativeOverlap(mem) != 0);
   }
 
   @Test
@@ -135,15 +138,14 @@ public class DoublesSketchTest {
 
   @Test
   public void directSketchShouldMoveOntoHeapEventually() {
-    try (WritableHandle wdh = WritableMemory.allocateDirect(1000,
-            ByteOrder.nativeOrder(), new DefaultMemoryRequestServer())) {
-      WritableMemory mem = wdh.getWritable();
+    try (ResourceScope scope = ResourceScope.newConfinedScope()) {
+      WritableMemory mem = WritableMemory.allocateDirect(1000, 8, scope, ByteOrder.nativeOrder(), memReqSvr);
       UpdateDoublesSketch sketch = DoublesSketch.builder().build(mem);
-      Assert.assertTrue(sketch.isSameResource(mem));
+      Assert.assertTrue(sketch.nativeOverlap(mem) != 0);
       for (int i = 0; i < 1000; i++) {
         sketch.update(i);
       }
-      Assert.assertFalse(sketch.isSameResource(mem));
+      Assert.assertFalse(sketch.nativeOverlap(mem) != 0);
     } catch (final Exception e) {
       throw new RuntimeException(e);
     }
@@ -152,13 +154,12 @@ public class DoublesSketchTest {
   @Test
   public void directSketchShouldMoveOntoHeapEventually2() {
     int i = 0;
-    try (WritableHandle wdh =
-        WritableMemory.allocateDirect(50, ByteOrder.LITTLE_ENDIAN, new DefaultMemoryRequestServer())) {
-      WritableMemory mem = wdh.getWritable();
+    try (ResourceScope scope = ResourceScope.newConfinedScope()) {
+      WritableMemory mem = WritableMemory.allocateDirect(50, 8, scope, ByteOrder.nativeOrder(), memReqSvr);
       UpdateDoublesSketch sketch = DoublesSketch.builder().build(mem);
-      Assert.assertTrue(sketch.isSameResource(mem));
+      Assert.assertTrue(sketch.nativeOverlap(mem) != 0);
       for (; i < 1000; i++) {
-        if (sketch.isSameResource(mem)) {
+        if (sketch.nativeOverlap(mem) != 0) {
           sketch.update(i);
         } else {
           //println("MOVED OUT at i = " + i);
@@ -172,8 +173,8 @@ public class DoublesSketchTest {
 
   @Test
   public void checkEmptyDirect() {
-    try (WritableHandle wdh = WritableMemory.allocateDirect(1000)) {
-      WritableMemory mem = wdh.getWritable();
+    try (ResourceScope scope = ResourceScope.newConfinedScope()) {
+      WritableMemory mem = WritableMemory.allocateDirect(1000, 8, scope, ByteOrder.nativeOrder(), memReqSvr);
       UpdateDoublesSketch sketch = DoublesSketch.builder().build(mem);
       sketch.toByteArray(); //exercises a specific path
     } catch (final Exception e) {
